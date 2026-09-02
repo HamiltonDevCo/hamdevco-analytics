@@ -1,6 +1,6 @@
 {
   "name": "@hamdevco/analytics",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Shared PostHog instrumentation for the HamDevCo / BerryBloom site fleet.",
   "type": "module",
   "main": "./src/index.js",
@@ -14,7 +14,11 @@
       "types": "./src/middleware.d.ts",
       "default": "./src/middleware.js"
     },
-    "./nginx/ingest.conf": "./nginx/ingest.conf"
+    "./nginx/ingest.conf": "./nginx/ingest.conf",
+    "./route": {
+      "types": "./src/route.d.ts",
+      "default": "./src/route.js"
+    }
   },
   "files": [
     "src",

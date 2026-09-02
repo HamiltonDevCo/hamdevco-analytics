@@ -76,10 +76,25 @@ Sixteen of the twenty-four sites use the node adapter and serve from a Node
 process with no nginx in front, so there is no location block to add. Same proxy,
 expressed as middleware:
 
+**Two files, and both are required.**
+
+```ts
+// src/pages/ingest/[...path].ts
+export { ALL, prerender } from "@hamdevco/analytics/route";
+```
+
 ```ts
 // src/middleware.ts — site with no other middleware
 export { onRequest } from "@hamdevco/analytics/middleware";
 ```
+
+> **Why both.** The `@astrojs/node` adapter serves a *prerendered* `404.astro`
+> for unmatched paths **before middleware runs at all**. Without the route, the
+> middleware never sees `/ingest/*` and every ingest path returns the site's 404
+> page — verified on bryan-krausen, which documents this trap in its own
+> `astro.config.mjs`. The route makes the path reachable; the middleware makes it
+> reachable *first*, ahead of CSRF and redirect middleware. On a site with both,
+> the middleware answers and the route body never runs.
 
 ```ts
 // src/middleware.ts — site that already has middleware
