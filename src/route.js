@@ -13,7 +13,11 @@ import { proxyToPostHog } from "./proxy-core.js";
  * Use in a site as:
  *
  *     // src/pages/ingest/[...path].ts
- *     export { ALL, prerender } from "@hamdevco/analytics/route";
+ *     import { ALL as ingestAll } from "@hamdevco/analytics/route";
+ *     export const prerender = false;   // MUST be a literal here — Astro cannot
+ *     export const ALL = ingestAll;     // see prerender through a re-export, and
+ *                                       // an output:"static" site then fails the
+ *                                       // build with get-static-paths-required.
  */
 
 /** Must be false, or this route is baked to a static file at build time. */
