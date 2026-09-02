@@ -1,0 +1,21 @@
+{
+  "name": "@hamdevco/analytics",
+  "version": "0.1.0",
+  "description": "Shared PostHog instrumentation for the HamDevCo / BerryBloom site fleet.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./schema": "./src/schema.js",
+    "./nginx/ingest.conf": "./nginx/ingest.conf"
+  },
+  "files": ["src", "nginx", "README.md"],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "peerDependencies": {
+    "posthog-js": ">=1.100.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
