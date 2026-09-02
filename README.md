@@ -80,8 +80,20 @@ expressed as middleware:
 
 ```ts
 // src/pages/ingest/[...path].ts
-export { ALL, prerender } from "@hamdevco/analytics/route";
+import { ALL as ingestAll } from "@hamdevco/analytics/route";
+
+// Declared literally. Do NOT write `export { ALL, prerender } from ...`.
+export const prerender = false;
+export const ALL = ingestAll;
 ```
+
+> **`prerender` must be a literal in the site's own file.** Astro statically
+> analyses the route file to decide whether a dynamic route is prerendered, and it
+> cannot see through a re-export. On an `output: "static"` site the route is then
+> treated as prerendered and the build fails outright with
+> `get-static-paths-required` — three sites failed exactly this way. Sites on
+> `output: "server"` happen to survive the re-export, which makes it a trap that
+> only fires on part of the fleet.
 
 ```ts
 // src/middleware.ts — site with no other middleware
