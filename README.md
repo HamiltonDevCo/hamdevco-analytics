@@ -156,6 +156,34 @@ Mark up a surface to get better breakdowns:
 <input data-ph-mask>          <!-- excluded from session replay -->
 ```
 
+## The content network is a SEPARATE schema and a separate project
+
+Content sites do not use
+`initAnalytics`. They use `initContentAnalytics` from `@hamdevco/analytics/content`:
+
+```astro
+<script>
+  import { initContentAnalytics } from "@hamdevco/analytics/content";
+  initContentAnalytics({ token: "phc_...", site: "example-site", niche: "cooking" });
+</script>
+```
+
+**Why not one schema.** `schema.js` assumes the conversion is a phone call or a form
+submit. A content site on that schema records
+`$pageview` and `$pageleave` and **nothing else** — not one of the six client
+conversion events, because these pages carry no phone number and no form. The whole
+network would report traffic and no outcome.
+
+On a content site the money event is the **outbound click to a merchant**, and
+`Outbound Clicked` carries `outbound_domain` so the network rolls up by merchant.
+`Scroll Depth` and `Read Completed` explain why it did or did not happen — and
+`Read Completed` requires 15 seconds as well as reaching the bottom, because a
+bounce can fling the scrollbar to 100% in under a second.
+
+A test asserts the two schemas share no event name. A collision would merge a
+client funnel with a content funnel in whichever project both landed in, and the
+merge would look like real data.
+
 ## Rules this package exists to enforce
 
 **Never type an event name or property key anywhere but `src/schema.js`.** PostHog
