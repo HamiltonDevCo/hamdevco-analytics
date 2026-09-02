@@ -1,14 +1,20 @@
 {
   "name": "@hamdevco/analytics",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shared PostHog instrumentation for the HamDevCo / BerryBloom site fleet.",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js",
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
     "./schema": "./src/schema.js",
-    "./nginx/ingest.conf": "./nginx/ingest.conf",
-    "./middleware": "./src/middleware.js"
+    "./middleware": {
+      "types": "./src/middleware.d.ts",
+      "default": "./src/middleware.js"
+    },
+    "./nginx/ingest.conf": "./nginx/ingest.conf"
   },
   "files": [
     "src",
@@ -22,5 +28,6 @@
     "posthog-js": ">=1.100.0"
   },
   "license": "UNLICENSED",
-  "private": true
+  "private": true,
+  "types": "./src/index.d.ts"
 }
