@@ -70,6 +70,43 @@ Coolify env page looks, and `initAnalytics` then logs an error and sends nothing
 An empty project reads as "nobody visited the site", not "the key was missing" —
 this is what HAM-962 turned out to be, three months after the fact.
 
+## Wire an SSR site (@astrojs/node)
+
+Sixteen of the twenty-four sites use the node adapter and serve from a Node
+process with no nginx in front, so there is no location block to add. Same proxy,
+expressed as middleware:
+
+```ts
+// src/middleware.ts — site with no other middleware
+export { onRequest } from "@hamdevco/analytics/middleware";
+```
+
+```ts
+// src/middleware.ts — site that already has middleware
+import { sequence } from "astro:middleware";
+import { ingestProxy } from "@hamdevco/analytics/middleware";
+
+export const onRequest = sequence(ingestProxy, existingMiddleware);
+```
+
+> **`ingestProxy` MUST come first, and this is not a style preference.**
+>
+> KY Earthworks' middleware contains this, and several others in the fleet do too:
+>
+> ```ts
+> if (path !== "/" && path.endsWith("/")) return context.redirect(clean, 301);
+> ```
+>
+> `posthog-js` POSTs to `/ingest/e/`, `/ingest/i/v0/e/` and `/ingest/flags/` —
+> every one of them trailing-slash — using `fetch(keepalive)` and
+> `navigator.sendBeacon`. **Browsers drop the request body on a redirect hop for
+> both of those send paths.** Ordered second, `ingestProxy` never sees the request
+> and every event dies silently with a 301 that looks like a success in the logs.
+>
+> This is the same failure that meant Ridgerunner's session replay had never
+> worked on any deploy. `ingestProxy` answers `/ingest/*` itself and never calls
+> `next()`, so putting it first costs the rest of the chain nothing.
+
 ## What it sends
 
 Six custom events plus autocapture. Deliberately small: for a trades or
