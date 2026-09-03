@@ -131,3 +131,67 @@ test("scroll thresholds are ascending and end at 100", () => {
   assert.deepEqual([...d].sort((a, b) => a - b), d);
   assert.equal(d[d.length - 1], 100);
 });
+
+/**
+ * THE BUG THIS CATCHES ACTUALLY SHIPPED, briefly.
+ *
+ * A refactor added an outbound-click branch to client.js that called `regionOf(a)`
+ * and read `outbound`, while the edit that was supposed to DECLARE both silently
+ * matched nothing. The result compiled, minified, passed every other test, and
+ * emitted `else if(outbound){…regionOf(t)…}` with two undeclared globals — which
+ * throws a ReferenceError on the first link click and takes `Phone Clicked` and
+ * `Email Clicked` down with it. `node --check` does not catch it: the syntax is
+ * perfectly valid.
+ *
+ * So: every function these modules call must be declared or imported in the same
+ * file. Crude, but it is exactly the failure mode that got through.
+ */
+for (const file of readdirSync(SRC).filter((f) => f.endsWith(".js"))) {
+  test(`${file} calls no undeclared function`, () => {
+    const src = readFileSync(join(SRC, file), "utf8");
+    // Strip comments AND string literals first: an English sentence inside an
+    // error message ("value (Docker ARG), not a runtime env var") reads as a
+    // function call to a naive scan, and a check that cries wolf gets ignored.
+    const code = src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/(^|[^:])\/\/.*$/gm, "$1")
+      .replace(/`(?:\\.|[^`\\])*`/g, "``")
+      .replace(/"(?:\\.|[^"\\])*"/g, '""')
+      .replace(/'(?:\\.|[^'\\])*'/g, "''");
+
+    const declared = new Set([
+      ...[...code.matchAll(/function\s+([A-Za-z_$][\w$]*)/g)].map((m) => m[1]),
+      ...[...code.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=/g)].map((m) => m[1]),
+      ...[...code.matchAll(/import\s*\{([^}]+)\}/g)].flatMap((m) =>
+        m[1].split(",").map((x) => x.trim().split(/\s+as\s+/).pop())),
+      ...[...code.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from/g)].map((m) => m[1]),
+      // destructured locals, e.g. const { token, client } = opts
+      ...[...code.matchAll(/\{([^{}]+)\}\s*=\s*(?:opts|e|data)/g)].flatMap((m) =>
+        m[1].split(",").map((x) => x.trim().split("=")[0].trim())),
+      // FUNCTION PARAMETERS. `next` in middleware.js and `outbound` in client.js
+      // are parameters, not globals — without these the check cries wolf on
+      // perfectly correct code, and a check that cries wolf gets ignored.
+      ...[...code.matchAll(/function\s*[A-Za-z_$\w]*\s*\(([^)]*)\)/g)].flatMap((m) =>
+        m[1].split(",").map((x) => x.trim().split(/[=:]/)[0].replace(/[{}.\s]/g, "").trim())),
+      ...[...code.matchAll(/\(([^()]*)\)\s*=>/g)].flatMap((m) =>
+        m[1].split(",").map((x) => x.trim().split(/[=:]/)[0].replace(/[{}.\s]/g, "").trim())),
+      ...[...code.matchAll(/([A-Za-z_$][\w$]*)\s*=>/g)].map((m) => m[1]),
+    ].filter(Boolean));
+
+    const BUILTIN = new Set(["require","String","Number","Boolean","Object","Array","Date",
+      "Math","JSON","URL","Set","Map","WeakSet","WeakMap","Promise","Error","parseInt",
+      "parseFloat","isNaN","encodeURIComponent","decodeURIComponent","setTimeout",
+      "clearTimeout","setInterval","fetch","MutationObserver","Headers","Request","Response",
+      "if","for","while","switch","catch","return","typeof","function","new","await","super"]);
+
+    const called = new Set(
+      [...code.matchAll(/(?:^|[^.\w$])([a-z][\w$]*)\s*\(/g)].map((m) => m[1]));
+
+    const missing = [...called].filter(
+      (n) => !declared.has(n) && !BUILTIN.has(n));
+
+    assert.deepEqual(missing, [],
+      `${file} calls ${missing.join(", ")} but neither declares nor imports it — ` +
+      `that is a ReferenceError at runtime, not a build error.`);
+  });
+}

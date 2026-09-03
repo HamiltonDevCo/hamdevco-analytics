@@ -1,7 +1,7 @@
 import posthog from "posthog-js";
 import {
   OUTBOUND_CLICKED, PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL, PROP_LINK_REGION,
-  REGION_BODY, REGION_NAV, REGION_FOOTER, REGION_SIDEBAR,
+  regionOf,
 } from "./shared-schema.js";
 import {
   PROP_CLIENT, PROP_SITE, PROP_FORM_ID, PROP_SURFACE, PROP_PHONE, PROP_PROVIDER,
@@ -146,7 +146,7 @@ export function initAnalytics(opts) {
   });
 
   started = true;
-  wireAutoListeners();
+  wireAutoListeners(outbound);
   return posthog;
 }
 
@@ -181,7 +181,7 @@ function digits(n) {
  * means a new page gets them for free — a per-page `onclick` would not.
  * ------------------------------------------------------------------ */
 
-function wireAutoListeners() {
+function wireAutoListeners(outbound) {
   // tel: and mailto: — delegated, so links rendered later still count.
   document.addEventListener("click", (e) => {
     const a = e.target && e.target.closest && e.target.closest("a[href]");

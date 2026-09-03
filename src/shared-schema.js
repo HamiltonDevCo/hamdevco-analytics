@@ -29,3 +29,17 @@ export const REGION_SIDEBAR = "sidebar";
 export const ALL_SHARED_EVENTS = [OUTBOUND_CLICKED];
 export const ALL_SHARED_PROPS = [PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL, PROP_LINK_REGION];
 export const ALL_LINK_REGIONS = [REGION_BODY, REGION_NAV, REGION_FOOTER, REGION_SIDEBAR];
+
+/**
+ * Which region of the page a link sits in, as one of the enumerated values above.
+ *
+ * Lives here, beside the values it returns, so the client and content schemas
+ * cannot end up classifying the same link differently — a footer link counted as
+ * body on one site and footer on another makes the breakdown meaningless.
+ */
+export function regionOf(el) {
+  if (el.closest("nav, header, [role=navigation], [role=banner]")) return REGION_NAV;
+  if (el.closest("footer, [role=contentinfo]")) return REGION_FOOTER;
+  if (el.closest("aside, [role=complementary]")) return REGION_SIDEBAR;
+  return REGION_BODY;
+}
