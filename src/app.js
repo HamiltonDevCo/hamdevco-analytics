@@ -25,12 +25,15 @@ let identified = false;
  * @param {string} [opts.client] Client slug, when owner is "client", so the events
  *   join that client's rollup alongside their marketing site.
  * @param {string} [opts.apiHost] Same-origin ingest path. Defaults to "/ingest".
+ * @param {boolean} [opts.replay] Session replay. Defaults to FALSE — on a client's
+ *   portal this would record their users, which their privacy policy has not
+ *   agreed to. Only opt in for a product we own.
  */
 export function initAppAnalytics(opts) {
   if (typeof window === "undefined") return null;
   if (started) return posthog;
 
-  const { token, app, owner, client, apiHost = "/ingest" } = opts || {};
+  const { token, app, owner, client, apiHost = "/ingest", replay = false } = opts || {};
 
   // Loud, not quiet: a silent no-op here is indistinguishable from a product
   // nobody uses.
@@ -74,10 +77,25 @@ export function initAppAnalytics(opts) {
     // loads the page.
     capture_exceptions: true,
 
-    // Replay is off until it is a deliberate, disclosed decision. These are
-    // authenticated screens holding customer records — on a client's portal they
-    // are that client's users, and their privacy policy has not agreed to this.
-    disable_session_recording: true,
+    // Replay is OFF unless a caller opts in. These are authenticated screens
+    // holding customer records — on a client's portal they are that client's
+    // users, and their privacy policy has not agreed to this. Stowlane is our
+    // own product, which is why it opts in and the partner portals do not.
+    disable_session_recording: !replay,
+      session_recording: {
+        // Mask anything typed. These are contact forms and checkouts carrying real
+        // names, phone numbers, addresses and card details — there is no version
+        // of this where recording keystrokes is acceptable.
+        maskAllInputs: true,
+
+        // INPUTS ARE NOT THE WHOLE PROBLEM. An order confirmation or an account
+        // page renders the customer's name and address as ORDINARY TEXT, which
+        // maskAllInputs does not touch. `address` is the real HTML element for a
+        // postal address; the data attributes are the convention for anything
+        // else. Mark PII on a store's confirmation and account pages with
+        // data-ph-mask, or replay will record it in the clear.
+        maskTextSelector: "[data-ph-mask], [data-ph-no-capture], address",
+      },
 
     loaded: () => {
       const supers = {
