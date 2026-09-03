@@ -20,7 +20,8 @@ const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
  *
  * The two schema modules are the only files allowed to contain these strings.
  */
-const SCHEMA_FILES = new Set(["schema.js", "content-schema.js", "app-schema.js"]);
+const SCHEMA_FILES = new Set(["schema.js", "content-schema.js", "app-schema.js",
+                             "shared-schema.js"]);
 const files = readdirSync(SRC).filter((f) => f.endsWith(".js") && !SCHEMA_FILES.has(f));
 
 /** Distinctive multi-word strings — safe to match as bare quoted literals. */
