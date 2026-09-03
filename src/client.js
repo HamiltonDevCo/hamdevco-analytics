@@ -1,5 +1,9 @@
 import posthog from "posthog-js";
 import {
+  OUTBOUND_CLICKED, PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL, PROP_LINK_REGION,
+  REGION_BODY, REGION_NAV, REGION_FOOTER, REGION_SIDEBAR,
+} from "./shared-schema.js";
+import {
   PROP_CLIENT, PROP_SITE, PROP_FORM_ID, PROP_SURFACE, PROP_PHONE, PROP_PROVIDER,
   FORM_STARTED, FORM_SUBMITTED, PHONE_CLICKED, EMAIL_CLICKED,
   BOOKING_STARTED, BOOKING_COMPLETED, QUOTE_REQUESTED,
@@ -36,6 +40,10 @@ let started = false;
  * @param {string} opts.token      PostHog project API key (phc_...). Public by design.
  * @param {string} opts.client     Client slug. Rides every event as a super property.
  * @param {string} [opts.apiHost]  Same-origin ingest path. Defaults to "/ingest".
+ * @param {boolean} [opts.outbound] Track clicks that LEAVE the site as
+ *   `Outbound Clicked`. Off by default — on most client sites an outbound click
+ *   is someone leaving. On a site that sells elsewhere (krausen.io sends people
+ *   to Udemy) it is the ONLY conversion, and without this it is invisible.
  * @param {boolean} [opts.replay]  Enable session replay. Defaults to false.
  * @param {string} [opts.persistence]  posthog-js persistence mode. Defaults to
  *   "localStorage+cookie". Pass "localStorage" on any site whose privacy policy
@@ -48,6 +56,7 @@ export function initAnalytics(opts) {
 
   const {
     token, client, apiHost = "/ingest", replay = false, debug = false,
+    outbound = false,
     persistence = "localStorage+cookie",
   } = opts || {};
 
@@ -182,6 +191,25 @@ function wireAutoListeners() {
       trackPhoneClicked(href.slice(4), surfaceOf(a));
     } else if (href.startsWith("mailto:")) {
       trackEmailClicked(surfaceOf(a));
+    } else if (outbound) {
+      // A click that LEAVES the site. On most client sites that is someone
+      // wandering off; on one that sells elsewhere it IS the sale. Opt-in, so
+      // the sites where it is noise do not fill up with it.
+      let url;
+      try {
+        url = new URL(href, window.location.href);
+      } catch {
+        return; // javascript:, #anchors and other non-navigational hrefs
+      }
+      if (url.protocol !== "http:" && url.protocol !== "https:") return;
+      if (url.hostname === window.location.hostname) return;
+      send(OUTBOUND_CLICKED, {
+        // `www.` stripped so udemy.com and www.udemy.com group as one
+        // destination instead of splitting the report in half.
+        [PROP_OUTBOUND_DOMAIN]: url.hostname.replace(/^www\./, ""),
+        [PROP_OUTBOUND_URL]: url.href,
+        [PROP_LINK_REGION]: regionOf(a),
+      });
     }
   }, { capture: true });
 

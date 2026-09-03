@@ -22,12 +22,22 @@
  * reads as ZERO on an insight with no error. Import from here; never retype.
  */
 
+/**
+ * Outbound clicking is not content-only: krausen.io sells its courses by sending
+ * people to Udemy. Defined once in shared-schema.js and re-exported here, so the
+ * client and content schemas cannot drift to two spellings of the same event.
+ */
+import {
+  OUTBOUND_CLICKED, PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL,
+} from "./shared-schema.js";
+export { OUTBOUND_CLICKED, PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL };
+
 /* ------------------------------------------------------------------ *
  * Events
  * ------------------------------------------------------------------ */
 
 /** The money event. An affiliate or merchant link followed off-site. */
-export const OUTBOUND_CLICKED = "Outbound Clicked";
+
 
 /**
  * Fired once per threshold per page at 25/50/75/100%.
@@ -74,10 +84,10 @@ export const PROP_NICHE = "niche";
  * answers which merchants the content actually sends people to, which is the
  * input to any affiliate decision.
  */
-export const PROP_OUTBOUND_DOMAIN = "outbound_domain";
+
 
 /** Full destination URL. Kept alongside the domain for spot-checking a placement. */
-export const PROP_OUTBOUND_URL = "outbound_url";
+
 
 /** 25 | 50 | 75 | 100. Integer, not a string, so it sorts and filters numerically. */
 export const PROP_DEPTH_PCT = "depth_pct";
