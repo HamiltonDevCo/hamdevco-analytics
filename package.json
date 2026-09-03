@@ -1,6 +1,6 @@
 {
   "name": "@hamdevco/analytics",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Shared PostHog instrumentation for the HamDevCo / BerryBloom site fleet.",
   "type": "module",
   "main": "./src/index.js",
@@ -23,7 +23,12 @@
       "types": "./src/content.d.ts",
       "default": "./src/content.js"
     },
-    "./content-schema": "./src/content-schema.js"
+    "./content-schema": "./src/content-schema.js",
+    "./app": {
+      "types": "./src/app.d.ts",
+      "default": "./src/app.js"
+    },
+    "./app-schema": "./src/app-schema.js"
   },
   "files": [
     "src",
