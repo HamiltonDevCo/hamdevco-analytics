@@ -29,6 +29,13 @@ export function initAppAnalytics(opts: AppAnalyticsOptions): typeof posthog | nu
  */
 export function identifyUser(user: { id: string | number; role?: string }): void;
 
+/**
+ * Associate the session with an account, so events answer "which account" and not
+ * only "which user". Reads a `current-group` meta tag automatically; call this
+ * directly if the app has no such tag.
+ */
+export function identifyGroup(group: { type: string; key: string | number; name?: string }): void;
+
 /** Capture `Signed Out` and reset, so the next user on a shared machine is separate. */
 export function signOut(): void;
 

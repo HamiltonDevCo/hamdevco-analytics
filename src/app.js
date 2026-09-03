@@ -106,6 +106,7 @@ export function initAppAnalytics(opts) {
       if (client) supers.client = client;
       posthog.register(supers);
       adoptCurrentUser();
+      adoptCurrentGroup();
       wireErrors();
     },
   });
@@ -130,6 +131,37 @@ function adoptCurrentUser() {
   if (data && data.id != null) {
     identifyUser({ id: data.id, role: data.role_type || data.role });
   }
+}
+
+
+/**
+ * Reads a `current-group` meta tag and associates the session with an account.
+ *
+ * WHY THIS EXISTS. Without it PostHog can tell you A USER did something but not
+ * WHICH ACCOUNT — so "which storage operator actually uses this" and "which
+ * partners have gone quiet" are unanswerable, and those are the questions a B2B
+ * product is judged on. Every later event carries the group automatically.
+ *
+ * Name only. No billing detail, no contact, nothing that turns the analytics
+ * store into a second CRM.
+ */
+export function identifyGroup({ type, key, name } = {}) {
+  if (!started || !type || key == null) return;
+  posthog.group(String(type), String(key), name ? { name } : undefined);
+}
+
+function adoptCurrentGroup() {
+  const meta = document.querySelector('meta[name="current-group"]');
+  if (!meta) return;
+  let data;
+  try {
+    data = JSON.parse(meta.getAttribute("content") || "{}");
+  } catch {
+    return;
+  }
+  if (!data || !data.type || data.key == null) return;
+  posthog.group(String(data.type), String(data.key),
+                data.name ? { name: data.name } : undefined);
 }
 
 /**
