@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { sanitizeProperties } from "./sanitize.js";
 import { APP_EVENTS, APP_PROPS } from "./app-schema.js";
 // `site` is defined in schema.js, not here — one definition, so a rename
 // cannot leave two schemas disagreeing about the same breakdown.
@@ -62,6 +63,11 @@ export function initAppAnalytics(opts) {
     // would ever be recorded.
     capture_pageview: "history_change",
     capture_pageleave: true,
+
+    // Strip personal data out of URLs before anything leaves the browser.
+    // posthog-js records $current_url on EVERY event, so a page reached via
+    // ?email=… or ?token=… copies that straight into analytics.
+    sanitize_properties: sanitizeProperties,
     autocapture: true,
 
     // Uncaught JavaScript errors, reported as $exception events.

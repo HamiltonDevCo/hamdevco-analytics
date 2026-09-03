@@ -195,3 +195,30 @@ for (const file of readdirSync(SRC).filter((f) => f.endsWith(".js"))) {
       `that is a ReferenceError at runtime, not a build error.`);
   });
 }
+
+test("URLs carrying personal data are scrubbed before send", async () => {
+  // keestore.com redirects to /order/<id>?payment=success&email=<customer email>,
+  // and posthog-js records $current_url on every event. Without this the store was
+  // copying customer emails into analytics with nothing erroring.
+  const { scrubUrl, sanitizeProperties } = await import("../src/sanitize.js");
+
+  assert.equal(
+    scrubUrl("https://keestore.com/order/42?payment=success&email=jo%40example.com"),
+    "https://keestore.com/order/42?payment=success&email=redacted");
+  assert.equal(scrubUrl("/order/42?email=jo@example.com"), "/order/42?email=redacted");
+  assert.equal(scrubUrl("https://x.com/a?token=abc&page=2"), "https://x.com/a?token=redacted&page=2");
+
+  // Attribution must survive — scrubbing that would break every channel report.
+  assert.equal(scrubUrl("https://s.com/p?utm_source=meta&utm_campaign=x"),
+               "https://s.com/p?utm_source=meta&utm_campaign=x");
+  assert.equal(scrubUrl("https://s.com/plain"), "https://s.com/plain");
+
+  const props = sanitizeProperties({
+    $current_url: "https://k.com/o/1?email=a@b.c",
+    $referrer: "https://g.com/?q=shoes",
+    client: "keestore",
+  });
+  assert.equal(props.$current_url, "https://k.com/o/1?email=redacted");
+  assert.equal(props.$referrer, "https://g.com/?q=shoes");
+  assert.equal(props.client, "keestore");
+});
