@@ -92,7 +92,13 @@ export function initAnalytics(opts) {
     // such check and counts these visits in full. See the divergence note.
     respect_dnt: true,
 
-    capture_pageview: true,
+    // "history_change", NOT true. With `true` posthog-js records the INITIAL
+    // pageview only. That is fine on a static Astro site, where every navigation
+    // is a fresh document — but needsdirt and keestore are Next.js apps and
+    // purehome365asheville.app is Turbo-driven, so every navigation after the
+    // first is a pushState. Those pageviews were silently uncounted.
+    // Harmless on the MPA sites: no history change ever happens there.
+    capture_pageview: "history_change",
     capture_pageleave: true,
     autocapture: true,
 
