@@ -12,6 +12,12 @@ export interface AppAnalyticsOptions {
    */
   client?: string;
   apiHost?: string;
+  /**
+   * Session replay. Defaults to false. Only opt in for a product we own — on a
+   * client's portal this records their users, which their privacy policy has
+   * not agreed to.
+   */
+  replay?: boolean;
 }
 
 /** Returns the posthog instance, or null when it refused to start. Never throws. */
