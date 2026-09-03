@@ -67,7 +67,11 @@ export async function proxyToPostHog(request, clientAddress) {
   // POSTs to paths ending in a slash via fetch(keepalive) and sendBeacon, and a
   // 3xx to the slashless form makes browsers drop the body on the redirect hop.
   const rest = url.pathname.slice(PREFIX.length) || "/";
-  const isAsset = rest.startsWith("/static/");
+  // PostHog's documented proxy routes BOTH /static/ and /array/ to the asset
+  // host. posthog-js currently fetches its bundle from /static/array.js, but a
+  // config that asks for /array/<token>/array.js would otherwise hit the ingest
+  // host and 404 — which disables analytics silently, with no console error.
+  const isAsset = rest.startsWith("/static/") || rest.startsWith("/array/");
   const target = new URL((isAsset ? ASSETS_ORIGIN : INGEST_ORIGIN) + rest);
   target.search = url.search;
 
