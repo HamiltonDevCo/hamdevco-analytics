@@ -1,6 +1,6 @@
 {
   "name": "@hamdevco/analytics",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Shared PostHog instrumentation for an Astro site fleet.",
   "type": "module",
   "main": "./src/index.js",
