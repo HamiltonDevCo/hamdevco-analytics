@@ -61,6 +61,14 @@ export function initAppAnalytics(opts) {
     capture_pageleave: true,
     autocapture: true,
 
+    // Uncaught JavaScript errors, reported as $exception events.
+    //
+    // A script that fails to parse leaves no trace in the page and no failed request, so a SyntaxError in a tag snippet can stop analytics loading for months with nothing surfacing it.
+    //
+    // With this on, that class of bug reports itself the first time a visitor
+    // loads the page.
+    capture_exceptions: true,
+
     // Replay is off until it is a deliberate, disclosed decision. These are
     // authenticated screens holding customer records — on a client's portal they
     // are that client's users, and their privacy policy has not agreed to this.
