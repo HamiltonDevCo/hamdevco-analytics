@@ -5,6 +5,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as schema from "../src/schema.js";
 import * as content from "../src/content-schema.js";
+import * as appSchema from "../src/app-schema.js";
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
 
@@ -19,7 +20,7 @@ const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "src");
  *
  * The two schema modules are the only files allowed to contain these strings.
  */
-const SCHEMA_FILES = new Set(["schema.js", "content-schema.js"]);
+const SCHEMA_FILES = new Set(["schema.js", "content-schema.js", "app-schema.js"]);
 const files = readdirSync(SRC).filter((f) => f.endsWith(".js") && !SCHEMA_FILES.has(f));
 
 /** Distinctive multi-word strings — safe to match as bare quoted literals. */
@@ -28,6 +29,7 @@ const distinctive = [
   ...schema.ALL_SURFACES,
   ...content.ALL_CONTENT_EVENTS,
   ...content.ALL_LINK_REGIONS,
+  ...appSchema.ALL_APP_EVENTS,
 ];
 
 /**
@@ -73,21 +75,23 @@ for (const file of files) {
 test("every event name is unique within its schema", () => {
   assert.equal(new Set(schema.ALL_EVENTS).size, schema.ALL_EVENTS.length);
   assert.equal(new Set(content.ALL_CONTENT_EVENTS).size, content.ALL_CONTENT_EVENTS.length);
+  assert.equal(new Set(appSchema.ALL_APP_EVENTS).size, appSchema.ALL_APP_EVENTS.length);
 });
 
 test("every property key is unique within its schema", () => {
   assert.equal(new Set(schema.ALL_PROPS).size, schema.ALL_PROPS.length);
   assert.equal(new Set(content.ALL_CONTENT_PROPS).size, content.ALL_CONTENT_PROPS.length);
+  assert.equal(new Set(appSchema.ALL_APP_PROPS).size, appSchema.ALL_APP_PROPS.length);
 });
 
 test("custom event names are Title Case, matching PostHog's own convention", () => {
-  for (const e of [...schema.ALL_EVENTS, ...content.ALL_CONTENT_EVENTS]) {
+  for (const e of [...schema.ALL_EVENTS, ...content.ALL_CONTENT_EVENTS, ...appSchema.ALL_APP_EVENTS]) {
     assert.match(e, /^[A-Z][A-Za-z]*( [A-Z][A-Za-z]*)*$/, `"${e}" is not Title Case`);
   }
 });
 
 test("property keys are snake_case, so breakdowns read consistently", () => {
-  for (const p of [...schema.ALL_PROPS, ...content.ALL_CONTENT_PROPS]) {
+  for (const p of [...schema.ALL_PROPS, ...content.ALL_CONTENT_PROPS, ...appSchema.ALL_APP_PROPS]) {
     assert.match(p, /^[a-z][a-z0-9_]*$/, `"${p}" is not snake_case`);
   }
 });
@@ -98,13 +102,27 @@ test("the identifying property of each schema is present", () => {
   assert.ok(schema.ALL_PROPS.includes(schema.PROP_CLIENT));
   assert.equal(content.PROP_SITE_SLUG, "site_slug");
   assert.ok(content.ALL_CONTENT_PROPS.includes(content.PROP_SITE_SLUG));
+  assert.equal(appSchema.PROP_APP, "app");
+  assert.ok(appSchema.ALL_APP_PROPS.includes(appSchema.PROP_APP));
 });
 
-test("the two schemas share no event name", () => {
-  // A shared name would merge a client funnel with a content funnel in whichever
-  // project both landed in, and the merge would look like real data.
-  const overlap = schema.ALL_EVENTS.filter((e) => content.ALL_CONTENT_EVENTS.includes(e));
-  assert.deepEqual(overlap, [], `overlapping event names: ${overlap.join(", ")}`);
+test("no two schemas share an event name", () => {
+  // A shared name would merge unrelated funnels in whichever project both landed
+  // in, and the merge would look like real data. App events land in the SAME two
+  // projects as the marketing events, so this matters more now, not less.
+  const sets = {
+    client: schema.ALL_EVENTS,
+    content: content.ALL_CONTENT_EVENTS,
+    app: appSchema.ALL_APP_EVENTS,
+  };
+  const names = Object.keys(sets);
+  for (let i = 0; i < names.length; i++) {
+    for (let j = i + 1; j < names.length; j++) {
+      const overlap = sets[names[i]].filter((e) => sets[names[j]].includes(e));
+      assert.deepEqual(overlap, [],
+        `${names[i]} and ${names[j]} share: ${overlap.join(", ")}`);
+    }
+  }
 });
 
 test("scroll thresholds are ascending and end at 100", () => {
