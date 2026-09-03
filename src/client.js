@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { sanitizeProperties } from "./sanitize.js";
 import {
   OUTBOUND_CLICKED, PROP_OUTBOUND_DOMAIN, PROP_OUTBOUND_URL, PROP_LINK_REGION,
   regionOf,
@@ -104,6 +105,10 @@ export function initAnalytics(opts) {
     // Harmless on the MPA sites: no history change ever happens there.
     capture_pageview: "history_change",
     capture_pageleave: true,
+
+    // Strip personal data out of URLs before anything leaves the browser.
+    // A checkout that redirects to /order/<id>?email=<address> would copy that address into analytics, because posthog-js records $current_url on EVERY event. Applied everywhere, because a site that puts PII in a URL will not announce itself.
+    sanitize_properties: sanitizeProperties,
     autocapture: true,
 
     // Uncaught JavaScript errors, reported as $exception events.
