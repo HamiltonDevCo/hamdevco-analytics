@@ -37,13 +37,19 @@ let started = false;
  * @param {string} opts.client     Client slug. Rides every event as a super property.
  * @param {string} [opts.apiHost]  Same-origin ingest path. Defaults to "/ingest".
  * @param {boolean} [opts.replay]  Enable session replay. Defaults to false.
+ * @param {string} [opts.persistence]  posthog-js persistence mode. Defaults to
+ *   "localStorage+cookie". Pass "localStorage" on any site whose privacy policy
+ *   states it sets no cookies — the default DOES set a first-party cookie.
  * @param {boolean} [opts.debug]
  */
 export function initAnalytics(opts) {
   if (typeof window === "undefined") return null;
   if (started) return posthog;
 
-  const { token, client, apiHost = "/ingest", replay = false, debug = false } = opts || {};
+  const {
+    token, client, apiHost = "/ingest", replay = false, debug = false,
+    persistence = "localStorage+cookie",
+  } = opts || {};
 
   // Loud, not quiet. See the note above about silent no-ops.
   if (!token || typeof token !== "string" || !token.startsWith("phc_")) {
@@ -65,6 +71,10 @@ export function initAnalytics(opts) {
 
   posthog.init(token, {
     api_host: apiHost,
+
+    // "localStorage+cookie" is posthog-js's default and DOES set a first-party
+    // cookie. Sites promising "no tracking cookies" must pass "localStorage".
+    persistence,
     // Where the toolbar and "view in PostHog" links point. The proxy only carries
     // ingest; the UI still lives on the real host.
     ui_host: "https://us.posthog.com",
@@ -74,9 +84,12 @@ export function initAnalytics(opts) {
     // we never look at are pure cost.
     person_profiles: "identified_only",
 
-    // Honour Do Not Track and Global Privacy Control. This is a deliberate choice
-    // and it is the main reason PostHog and GA4 will never agree: GA4 has no such
-    // check and counts these visits in full. See the divergence note in the README.
+    // Honour Do Not Track. NOTE: posthog-js checks navigator.doNotTrack,
+    // navigator.msDoNotTrack and window.doNotTrack ONLY — it does NOT read
+    // Global Privacy Control (verified against posthog-js dist: zero occurrences
+    // of globalPrivacyControl). Do not claim GPC support in a privacy policy.
+    // This is still the main reason PostHog and GA4 will never agree: GA4 has no
+    // such check and counts these visits in full. See the divergence note.
     respect_dnt: true,
 
     capture_pageview: true,
