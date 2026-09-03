@@ -102,6 +102,19 @@ export function initAnalytics(opts) {
     capture_pageleave: true,
     autocapture: true,
 
+    // Uncaught JavaScript errors, reported as $exception events.
+    //
+    // THIS IS THE CHECK THAT WAS MISSING. The 30 content sites carried a
+    // doubled-brace SyntaxError in their GTM snippet from 2026-04-21 to
+    // 2026-09-02 — four and a half months of GA4 and GTM never loading — and
+    // nothing surfaced it, because a script that fails to parse leaves no trace
+    // in the page and no failed request. It was found only by reading
+    // Runtime.exceptionThrown over CDP, by hand.
+    //
+    // With this on, that class of bug reports itself the first time a visitor
+    // loads the page.
+    capture_exceptions: true,
+
     disable_session_recording: !replay,
     session_recording: {
       // Mask anything typed. These are contact forms on client sites carrying real
