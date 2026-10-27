@@ -72,7 +72,9 @@ export function initAppAnalytics(opts) {
 
     // Uncaught JavaScript errors, reported as $exception events.
     //
-    // A script that fails to parse leaves no trace in the page and no failed request, so a SyntaxError in a tag snippet can stop analytics loading for months with nothing surfacing it.
+    // A script that fails to parse leaves no trace in the page and no failed
+    // request, so a SyntaxError in a tag snippet can stop analytics loading for
+    // months with nothing surfacing it.
     //
     // With this on, that class of bug reports itself the first time a visitor
     // loads the page.
@@ -80,7 +82,8 @@ export function initAppAnalytics(opts) {
 
     // Replay is OFF unless a caller opts in. These are authenticated screens
     // holding customer records — on a client's portal they are that client's
-    // users, and their privacy policy has not agreed to this. Only a product we own should opt in.
+    // users, and their privacy policy has not agreed to this. Only a product we
+    // own should opt in.
     disable_session_recording: !replay,
       session_recording: {
         // Mask anything typed. These are contact forms and checkouts carrying real

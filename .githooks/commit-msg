@@ -1,0 +1,3 @@
+#!/bin/sh
+# This repository is public: commit messages are checked too. See AGENTS.md.
+exec node scripts/public-check.mjs --stdin < "$1"

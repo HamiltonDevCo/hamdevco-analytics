@@ -1,0 +1,3 @@
+#!/bin/sh
+# This repository is public. See AGENTS.md.
+exec node scripts/public-check.mjs

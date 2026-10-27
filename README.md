@@ -1,6 +1,10 @@
 # @hamdevco/analytics
 
-Shared PostHog instrumentation for a fleet of Astro sites, built into Docker images and deployed on Coolify.
+> **This repository is public.** No client, product or person names, no incidents,
+> no ticket IDs. Read [AGENTS.md](AGENTS.md) before you commit.
+
+Shared PostHog instrumentation for a fleet of Astro sites, built into Docker
+images and deployed on Coolify.
 
 One schema, one nginx snippet, one init call per site.
 
@@ -195,7 +199,8 @@ hard-codes one.
 **Verify a proxy with a browser, never with curl.** `posthog-js` POSTs to paths
 ending in a slash via `fetch(keepalive)` and `navigator.sendBeacon`. If anything
 in front answers those with a 3xx to the slashless form, browsers drop the request
-body — and `curl -L` re-sends it and reports success. Session replay can then be dead on every deploy with nothing reporting a failure.
+body — and `curl -L` re-sends it and reports success. Session replay can then be
+dead on every deploy with nothing reporting a failure.
 
 The acceptance test for a new site is: click through it in a real browser, then
 
@@ -217,6 +222,7 @@ side by side in a client report as though they measure the same thing.
 npm test
 ```
 
-Nine tests. The interesting ones assert that no file outside `schema.js`
-hard-codes an event name, a surface value, or a property key in literal key
-position.
+The interesting tests assert that no file outside `schema.js` hard-codes an
+event name, a surface value, or a property key in literal key position — and
+that no tracked file exposes a client, a product or an incident (see
+[AGENTS.md](AGENTS.md)).

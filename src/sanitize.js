@@ -3,7 +3,8 @@
  *
  * WHY THIS EXISTS. A checkout can redirect to its order page as
  * `/order/<id>?payment=success&email=<the customer's email>`. posthog-js records
- * `$current_url`, `$pathname` and `$referrer` on EVERY event, so that address would be copied into analytics — with nothing erroring and no replay involved.
+ * `$current_url`, `$pathname` and `$referrer` on EVERY event, so that address
+ * would be copied into analytics — with nothing erroring and no replay involved.
  *
  * A checkout that puts an email, a token or a phone number in the URL is a normal
  * thing to do; it just must not follow the visitor into the analytics store. This

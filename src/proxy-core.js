@@ -10,7 +10,8 @@
  *     every event.
  *
  *   - The ROUTE has to exist because the @astrojs/node adapter serves a
- *     PRERENDERED 404.astro for unmatched paths BEFORE middleware runs at all. Without a route registered at /ingest/[...path], the
+ *     PRERENDERED 404.astro for unmatched paths BEFORE middleware runs at all.
+ *     Without a route registered at /ingest/[...path], the
  *     middleware never sees the request and every ingest path 404s.
  *
  * So the route makes the path reachable and the middleware makes it reachable

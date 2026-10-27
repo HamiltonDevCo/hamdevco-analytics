@@ -7,7 +7,10 @@
  * sends "Form Submit" is a coincidence maintained by hand, and when it breaks the
  * step reads ZERO with no error, no warning, and no failed request.
  *
- * Applying this rule to event NAMES only is not enough: a hand-typed property key or `surface` value can be renamed, typecheck, pass every test, and silently zero a funnel step. Hence: names, property keys AND enumerated values all live here,
+ * Applying this rule to event NAMES only is not enough: a hand-typed property key
+ * or `surface` value can be renamed, typecheck, pass every test, and silently
+ * zero a funnel step. Hence: names, property keys AND enumerated values all live
+ * here,
  * and every consumer imports them. Nothing downstream types a literal.
  *
  * IF YOU RENAME ANYTHING IN THIS FILE you are renaming it in PostHog too. The old

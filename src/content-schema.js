@@ -5,12 +5,14 @@
  *
  * WHY A SECOND SCHEMA AT ALL. schema.js assumes the conversion is a phone call or
  * a form submit, which is right for a trades client and meaningless on a content
- * site. On the client schema a content site records `$pageview` and `$pageleave` and NOTHING else — not
+ * site. On the client schema a content site records `$pageview` and `$pageleave`
+ * and NOTHING else — not
  * one of the six client conversion events, because these pages carry no phone
  * number and no form. A shared schema would have left the whole network reporting
  * traffic and no outcome.
  *
- * WHAT ACTUALLY MATTERS HERE. Content sites monetise through affiliate links. So the money event is the
+ * WHAT ACTUALLY MATTERS HERE. Content sites monetise through affiliate links. So
+ * the money event is the
  * OUTBOUND CLICK to a merchant, and everything else exists to explain why it did
  * or did not happen.
  *
@@ -20,7 +22,9 @@
  */
 
 /**
- * Outbound clicking is not content-only: a client site that sells elsewhere converts on the outbound click. Defined once in shared-schema.js and re-exported here, so the
+ * Outbound clicking is not content-only: a client site that sells elsewhere
+ * converts on the outbound click. Defined once in shared-schema.js and
+ * re-exported here, so the
  * client and content schemas cannot drift to two spellings of the same event.
  */
 import {

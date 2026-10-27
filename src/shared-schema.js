@@ -2,7 +2,9 @@
  * Events that mean the SAME thing on more than one kind of site, defined once.
  *
  * `Outbound Clicked` was originally content-only, on the assumption that leaving
- * for another domain is how an article earns. The same holds on a client site that sells elsewhere: with no phone number and few forms, the outbound click is its only conversion, and the client schema alone would leave it invisible.
+ * for another domain is how an article earns. The same holds on a client site
+ * that sells elsewhere: with no phone number and few forms, the outbound click is
+ * its only conversion, and the client schema alone would leave it invisible.
  *
  * Defined here rather than copied into both schemas: two constants with the same
  * string is the exact failure this package exists to prevent — they drift, and a

@@ -25,7 +25,9 @@ import {
  * quietly no-op and the project would sit empty, which reads as "nobody visited
  * the site" rather than "the key was undefined".
  *
- * The same trap hits any secret read that way: a mailer that reads its credentials through `import.meta.env` takes its early return, and its notifications stop while the container logs nothing.
+ * The same trap hits any secret read that way: a mailer that reads its
+ * credentials through `import.meta.env` takes its early return, and its
+ * notifications stop while the container logs nothing.
  *
  * So the site passes the key in, and the site is responsible for making sure it
  * is a Docker BUILD ARG. `initAnalytics` throws if it is missing rather than
@@ -41,7 +43,8 @@ let started = false;
  * @param {string} [opts.apiHost]  Same-origin ingest path. Defaults to "/ingest".
  * @param {boolean} [opts.outbound] Track clicks that LEAVE the site as
  *   `Outbound Clicked`. Off by default — on most client sites an outbound click
- *   is someone leaving. On a site that sells elsewhere it is the ONLY conversion, and without this it is invisible.
+ *   is someone leaving. On a site that sells elsewhere it is the ONLY conversion,
+ *   and without this it is invisible.
  * @param {boolean} [opts.replay]  Enable session replay. Defaults to false.
  * @param {string} [opts.persistence]  posthog-js persistence mode. Defaults to
  *   "localStorage+cookie". Pass "localStorage" on any site whose privacy policy
@@ -101,19 +104,26 @@ export function initAnalytics(opts) {
 
     // "history_change", NOT true. With `true` posthog-js records the INITIAL
     // pageview only. That is fine on a static Astro site, where every navigation
-    // is a fresh document — but on a Next.js app or a Turbo-driven site every navigation after the first is a pushState, and those pageviews would go uncounted.
+    // is a fresh document — but on a Next.js app or a Turbo-driven site every
+    // navigation after the first is a pushState, and those pageviews would go
+    // uncounted.
     // Harmless on the MPA sites: no history change ever happens there.
     capture_pageview: "history_change",
     capture_pageleave: true,
 
     // Strip personal data out of URLs before anything leaves the browser.
-    // A checkout that redirects to /order/<id>?email=<address> would copy that address into analytics, because posthog-js records $current_url on EVERY event. Applied everywhere, because a site that puts PII in a URL will not announce itself.
+    // A checkout that redirects to /order/<id>?email=<address> would copy that
+    // address into analytics, because posthog-js records $current_url on EVERY
+    // event. Applied everywhere, because a site that puts PII in a URL will not
+    // announce itself.
     sanitize_properties: sanitizeProperties,
     autocapture: true,
 
     // Uncaught JavaScript errors, reported as $exception events.
     //
-    // A script that fails to parse leaves no trace in the page and no failed request, so a SyntaxError in a tag snippet can stop analytics loading for months with nothing surfacing it.
+    // A script that fails to parse leaves no trace in the page and no failed
+    // request, so a SyntaxError in a tag snippet can stop analytics loading for
+    // months with nothing surfacing it.
     //
     // With this on, that class of bug reports itself the first time a visitor
     // loads the page.

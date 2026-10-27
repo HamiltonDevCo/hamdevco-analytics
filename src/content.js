@@ -28,7 +28,8 @@ let started = false;
  * @param {object} opts
  * @param {string} opts.token  PostHog project API key (phc_...). Public by design.
  * @param {string} opts.site   Site slug, e.g. "example-site".
- * @param {string} [opts.niche] Cluster name, so many sites roll up into a few groups.
+ * @param {string} [opts.niche] Cluster name, so many sites roll up into a few
+ *   groups.
  * @param {string} [opts.apiHost] Same-origin ingest path. Defaults to "/ingest".
  * @param {boolean} [opts.debug]
  */
@@ -71,7 +72,9 @@ export function initContentAnalytics(opts) {
 
     // Uncaught JavaScript errors, reported as $exception events.
     //
-    // A script that fails to parse leaves no trace in the page and no failed request, so a SyntaxError in a tag snippet can stop analytics loading for months with nothing surfacing it.
+    // A script that fails to parse leaves no trace in the page and no failed
+    // request, so a SyntaxError in a tag snippet can stop analytics loading for
+    // months with nothing surfacing it.
     //
     // With this on, that class of bug reports itself the first time a visitor
     // loads the page.

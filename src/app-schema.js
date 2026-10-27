@@ -1,5 +1,6 @@
 /**
- * Event names and property keys for AUTHENTICATED products — our own products and client partner portals.
+ * Event names and property keys for AUTHENTICATED products — our own products and
+ * client partner portals.
  *
  * Separate from schema.js because the question is different. A marketing site asks
  * "did this visitor convert?" — a phone tap, a form submit. A logged-in product asks

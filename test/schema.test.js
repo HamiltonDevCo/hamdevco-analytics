@@ -197,7 +197,9 @@ for (const file of readdirSync(SRC).filter((f) => f.endsWith(".js"))) {
 }
 
 test("URLs carrying personal data are scrubbed before send", async () => {
-  // A checkout that redirects to /order/<id>?payment=success&email=<customer email> would copy customer emails into analytics, because posthog-js records $current_url on every event.
+  // A checkout that redirects to /order/<id>?payment=success&email=<customer
+  // email> would copy customer emails into analytics, because posthog-js records
+  // $current_url on every event.
   const { scrubUrl, sanitizeProperties } = await import("../src/sanitize.js");
 
   assert.equal(
