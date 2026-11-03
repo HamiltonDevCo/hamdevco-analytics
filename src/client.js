@@ -94,10 +94,9 @@ export function initAnalytics(opts) {
     // we never look at are pure cost.
     person_profiles: "identified_only",
 
-    // Honour Do Not Track. NOTE: posthog-js checks navigator.doNotTrack,
-    // navigator.msDoNotTrack and window.doNotTrack ONLY — it does NOT read
-    // Global Privacy Control (verified against posthog-js dist: zero occurrences
-    // of globalPrivacyControl). Do not claim GPC support in a privacy policy.
+    // Honour Do Not Track. posthog-js >= 1.423.0 also honours Global Privacy
+    // Control (navigator.globalPrivacyControl) when respect_dnt is on; earlier
+    // versions did not, which is why the peer floor is above that.
     // This is still the main reason PostHog and GA4 will never agree: GA4 has no
     // such check and counts these visits in full. See the divergence note.
     respect_dnt: true,
