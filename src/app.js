@@ -56,7 +56,7 @@ export function initAppAnalytics(opts) {
     // for every anonymous visitor.
     person_profiles: "identified_only",
 
-    // Do Not Track only. posthog-js does NOT read Global Privacy Control.
+    // Do Not Track, and Global Privacy Control from posthog-js 1.423.0 on.
     respect_dnt: true,
 
     // Products route client-side. With `true` only the first screen of a session

@@ -1,6 +1,6 @@
 {
   "name": "@hamdevco/analytics",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Shared PostHog instrumentation for an Astro site fleet.",
   "type": "module",
   "main": "./src/index.js",
@@ -41,7 +41,7 @@
     "test": "node --test test/*.test.js"
   },
   "peerDependencies": {
-    "posthog-js": ">=1.421.0"
+    "posthog-js": ">=1.444.0"
   },
   "license": "UNLICENSED",
   "private": true,

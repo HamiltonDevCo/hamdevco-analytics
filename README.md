@@ -16,10 +16,12 @@ Consumed as a git dependency so Docker builds need no registry auth:
 {
   "dependencies": {
     "@hamdevco/analytics": "github:HamiltonDevCo/hamdevco-analytics#v0.1.0",
-    "posthog-js": "^1.200.0"
+    "posthog-js": "^1.444.0"
   }
 }
 ```
+
+When a site bumps the `@hamdevco/analytics` tag, it also runs `npm i posthog-js@latest` so its lockfile moves. The peer floor is `>=1.444.0`; a lockfile on an older posthog-js keeps shipping old fixes.
 
 Pin the tag. `#main` will silently change what a site sends the next time its
 image is rebuilt, which is the sort of drift that shows up as a funnel step
